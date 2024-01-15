@@ -15,7 +15,7 @@ const rarityRanges = {
 }
 ```
 
-I decided not to include numeric rarity into json because I think it is pointless to final user, so word is more user-friendly
+I decided not to include numeric rarity into json because I think it is pointless for final user, so word is more user-friendly
 
 * those rarities are calculated based on implemented feature `rarities` (which is experimental in official wiki, but seems like works ok)
 
