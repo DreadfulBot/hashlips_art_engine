@@ -1,3 +1,73 @@
+# List of custom improvements:
+
+* `set_rarities.js` or `yarn set_rarities` will fulfill generated json with field `rarity: %RARITY%` and also will add `trait_type: Rarity` into attributes list
+
+* in `config.json` you have to configure rarity ranges with associated label (human-readable rarity label) on line 105 of code:
+
+```
+// rarity of [lrange...next_value]
+// Rarity depends on amount of trait_values and calculated by formulae:
+// Rarity(NFT; trait1, trait2, ..., traitN) = (1/prevalence,trait1) + (1/prevalence,trait2) + ... + (1/prevalence,traitn)
+const rarityRanges = {
+  'Common': [0, 15],
+  'Rare': [16, 19],
+  'Legendary': [20, 100]
+}
+```
+
+I decided not to include numeric rarity into json because I think it is pointless to final user, so word is more user-friendly
+
+* those rarities are calculated based on implemented feature `rarities` (which is experimental in official wiki, but seems like works ok)
+
+* example of final updated json:
+
+```
+{
+  "name": "Your Collection #5",
+  "description": "Remember to replace this description",
+  "image": "ipfs://NewUriToReplace/5.png",
+  "dna": "504aaf5bed7de6c27ad1191416b0feb2e10f571f",
+  "edition": 5,
+  "date": 1705184521524,
+  "attributes": [
+    {
+      "trait_type": "Background",
+      "value": "Black"
+    },
+    {
+      "trait_type": "Eyeball",
+      "value": "Red"
+    },
+    {
+      "trait_type": "Eye color",
+      "value": "Cyan"
+    },
+    {
+      "trait_type": "Iris",
+      "value": "Medium"
+    },
+    {
+      "trait_type": "Shine",
+      "value": "Shapes"
+    },
+    {
+      "trait_type": "Bottom lid",
+      "value": "Low"
+    },
+    {
+      "trait_type": "Top lid",
+      "value": "High"
+    },
+    {
+      "trait_type": "Rarity",
+      "value": "Legendary"
+    }
+  ],
+  "rarity": "Legendary"
+}
+```
+
+
 # Welcome to HashLips 👄
 
 ![](https://github.com/HashLips/hashlips_art_engine/blob/main/logo.png)
