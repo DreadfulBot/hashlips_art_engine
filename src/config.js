@@ -24,7 +24,7 @@ const solanaMetadata = {
 // If you have selected Solana then the collection starts from 0 automatically
 const layerConfigurations = [
   {
-    growEditionSizeTo: 5,
+    growEditionSizeTo: 10,
     layersOrder: [
       { name: "Background" },
       { name: "Eyeball" },
@@ -106,7 +106,7 @@ const preview_gif = {
 const rarityRanges = {
   'Common': [0, 16],
   'Rare': [16, 19],
-  'Legendary': [20, 100]
+  'Legendary': [19, 100]
 }
 
 module.exports = {
