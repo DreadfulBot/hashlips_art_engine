@@ -120,7 +120,7 @@ const getItemRarityLabel = (score) => {
   })
 
   if (!foundRarity) {
-    console.error('For item with score ' + score + ' no rarity work defined')
+    throw new Error('For item with score ' + score + ' no rarity work defined')
   }
 
   return foundRarity[0]
