@@ -104,7 +104,7 @@ const preview_gif = {
 // Rarity depends on amount of trait_values and calculated by formulae:
 // Rarity(NFT; trait1, trait2, ..., traitN) = (1/prevalence,trait1) + (1/prevalence,trait2) + ... + (1/prevalence,traitn)
 const rarityRanges = {
-  'Common': [0, 15],
+  'Common': [0, 16],
   'Rare': [16, 19],
   'Legendary': [20, 100]
 }
