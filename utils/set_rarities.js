@@ -5,12 +5,12 @@ const { getElements } = require("../src/main.js");
 const { rarityRanges } = require("../src/config.js");
 const { getRarityScores, groupByRarity } = require('../src/rarities.js');
 const Table = require("cli-table");
-const { inspect } = require("util");
+const path = require('path')
 
 const layersDir = `${basePath}/layers`;
 
 // read json data
-const rawdata = fs.readFileSync(`${basePath}/build/json/_metadata.json`);
+const rawdata = fs.readFileSync(path.join(basePath, "build", "json", "_metadata.json"));
 const data = JSON.parse(rawdata);
 
 const rarityScores = getRarityScores(
@@ -19,8 +19,6 @@ const rarityScores = getRarityScores(
   layerConfigurations,
   (layerName) => getElements(`${layersDir}/${layerName}/`))
 
-
-// console.log(inspect(rarityScores, false, null, true));
 const rarityGroups = groupByRarity(rarityScores)
 
 const itemsTable = new Table({
@@ -60,10 +58,14 @@ console.log(raritiesTable.toString())
 console.log("[x] Updating metadata...")
 
 rarityScores.forEach((element) => {
-  const path = `${basePath}/build/json/${element.element.edition}.json`
-  // console.log(`[x] Updating ${path}...`)
   fs.writeFileSync(
-    path,
+    path.join(
+      basePath,
+      "build",
+      "json",
+      `${element.element.edition}.json`
+    ),
+
     JSON.stringify(element.nextItem, null, 2)
   )
 })
