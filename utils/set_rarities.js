@@ -1,150 +1,71 @@
-const basePath = process.cwd();
 const fs = require("fs");
-const layersDir = `${basePath}/layers`;
-
+const basePath = process.cwd();
 const { layerConfigurations } = require(`${basePath}/src/config.js`);
-
 const { getElements } = require("../src/main.js");
 const { rarityRanges } = require("../src/config.js");
+const { getRarityScores, groupByRarity } = require('../src/rarities.js');
+const Table = require("cli-table");
+const { inspect } = require("util");
+
+const layersDir = `${basePath}/layers`;
 
 // read json data
-let rawdata = fs.readFileSync(`${basePath}/build/json/_metadata.json`);
-let data = JSON.parse(rawdata);
-let editionSize = data.length;
+const rawdata = fs.readFileSync(`${basePath}/build/json/_metadata.json`);
+const data = JSON.parse(rawdata);
 
-let rarityData = [];
+const rarityScores = getRarityScores(
+  data,
+  rarityRanges,
+  layerConfigurations,
+  (layerName) => getElements(`${layersDir}/${layerName}/`))
 
-// intialize layers to chart
-layerConfigurations.forEach((config) => {
-  let layers = config.layersOrder;
 
-  layers.forEach((layer) => {
-    // get elements for each layer
-    let elementsForLayer = [];
-    let elements = getElements(`${layersDir}/${layer.name}/`);
-    elements.forEach((element) => {
-      // just get name and weight for each element
-      let rarityDataElement = {
-        trait: element.name,
-        weight: element.weight.toFixed(0),
-        occurrence: 0, // initialize at 0
-      };
-      elementsForLayer.push(rarityDataElement);
-    });
-    let layerName =
-      layer.options?.["displayName"] != undefined
-        ? layer.options?.["displayName"]
-        : layer.name;
-    // don't include duplicate layers
-    if (!rarityData.includes(layer.name)) {
-      // add elements for each layer to chart
-      rarityData[layerName] = elementsForLayer;
-    }
-  });
+// console.log(inspect(rarityScores, false, null, true));
+const rarityGroups = groupByRarity(rarityScores)
+
+const itemsTable = new Table({
+  head: ['Item', 'Id', 'RarityRank', 'RarityLabel'],
+  colWidths: [30, 20, 20, 20]
 });
 
-// fill up rarity chart with occurrences from metadata
-data.forEach((element) => {
-  let attributes = element.attributes;
-  attributes.forEach((attribute) => {
-    let traitType = attribute.trait_type;
-    let value = attribute.value;
+rarityScores.forEach((rarityScore) => {
+  itemsTable.push([
+    rarityScore.element.name,
+    rarityScore.element.edition,
+    rarityScore.score,
+    rarityScore.nextItem.rarity
+  ])
+})
 
-    let rarityDataTraits = rarityData[traitType];
-    rarityDataTraits.forEach((rarityDataTrait) => {
-      if (rarityDataTrait.trait == value) {
-        // keep track of occurrences
-        rarityDataTrait.occurrence++;
-      }
-    });
-  });
+itemsTable.sort((a, b) => (a[2] > b[2]) ? -1 : 1)
+
+const raritiesTable = new Table({
+  head: ['Label', 'Items amount', 'Range'],
+  colWidths: [30, 20, 50]
 });
 
-// convert occurrences to occurence string
-for (var layer in rarityData) {
-  for (var attribute in rarityData[layer]) {
-    // get chance
-    let chance =
-      ((rarityData[layer][attribute].occurrence / editionSize) * 100).toFixed(2);
+Object.entries(rarityGroups).forEach(([rarityLabel, rarityGroup]) => {
+  raritiesTable.push([
+    rarityLabel,
+    rarityGroup.length,
+    rarityRanges[rarityLabel].join('...'),
+  ])
+})
 
-    // show two decimal places in percent
-    rarityData[layer][attribute].occurrence =
-      `${rarityData[layer][attribute].occurrence} in ${editionSize} editions (${chance} %)`;
+raritiesTable.sort((a, b) => (a[1] > b[1]) ? 1 : -1)
 
-    rarityData[layer][attribute].chance = chance / 100;
-  }
-}
+console.log(itemsTable.toString())
+console.log(raritiesTable.toString())
 
-// print out rarity data
-console.log("===========================\n");
-console.log("Traits Rarity Data ========");
-console.log("===========================\n");
+console.log("[x] Updating metadata...")
 
-for (var layer in rarityData) {
-  console.log(`Trait type: ${layer}`);
-  for (var trait in rarityData[layer]) {
-    console.log(rarityData[layer][trait]);
-  }
-  console.log();
-}
-
-// output a sorted list by NFT rarity score
-NFTrarity = []
-data.forEach((element) => {
-  score = 0;
-  element.attributes.forEach((attrib) => {
-    layer = rarityData[attrib["trait_type"]];
-    objIndex = layer.findIndex((meta => meta.trait == attrib["value"]));
-    trait = layer[objIndex];
-
-    // 0 <= chance <= 1 (0.2)
-    // chance higher -> score less
-    // chance lower -> score higher
-    // score higher -> more uniq work
-    score = score + 1 / trait.chance;
-  });
-
-  NFTrarity.push({
-    "element": element,
-    "score": score
-  });
-});
-
-console.log("NFT Rarity Ranking ========");
-console.log("===========================");
-NFTrarity.sort((a, b) => (a.score > b.score) ? -1 : 1);
-
-const getItemRarityLabel = (score) => {
-  const foundRarity = Object.entries(rarityRanges).find(([rName, rRange]) => {
-    return rRange[0] <= score && rRange[1] >= score
-  })
-
-  if (!foundRarity) {
-    throw new Error('For item with score ' + score + ' no rarity work defined')
-  }
-
-  return foundRarity[0]
-}
-
-NFTrarity.forEach((element) => {
-  let rarity = getItemRarityLabel(element.score)
-
-  let nextItem = {
-    ...element.element,
-    rarity,
-    attributes: [
-      ...element.element.attributes.filter(x => x.trait_type !== 'Rarity'),
-      {
-        'trait_type': 'Rarity',
-        'value': rarity
-      }
-    ]
-  }
-
-  console.log(`Updating rarity for element ${element.element.edition}, score = ${element.score} (${rarity})`)
-
+rarityScores.forEach((element) => {
+  const path = `${basePath}/build/json/${element.element.edition}.json`
+  // console.log(`[x] Updating ${path}...`)
   fs.writeFileSync(
-    `${basePath}/build/json/${element.element.edition}.json`,
-    JSON.stringify(nextItem, null, 2)
+    path,
+    JSON.stringify(element.nextItem, null, 2)
   )
-});
+})
+
+console.log("[x] Done!") 

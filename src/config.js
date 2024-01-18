@@ -24,7 +24,7 @@ const solanaMetadata = {
 // If you have selected Solana then the collection starts from 0 automatically
 const layerConfigurations = [
   {
-    growEditionSizeTo: 10,
+    growEditionSizeTo: 100,
     layersOrder: [
       { name: "Background" },
       { name: "Eyeball" },
@@ -104,9 +104,9 @@ const preview_gif = {
 // Rarity depends on amount of trait_values and calculated by formulae:
 // Rarity(NFT; trait1, trait2, ..., traitN) = (1/prevalence,trait1) + (1/prevalence,trait2) + ... + (1/prevalence,traitn)
 const rarityRanges = {
-  'Common': [0, 16],
-  'Rare': [16, 19],
-  'Legendary': [19, 100]
+  'Common': [0, 15],
+  'Rare': [15, 23],
+  'Legendary': [23, 100]
 }
 
 module.exports = {

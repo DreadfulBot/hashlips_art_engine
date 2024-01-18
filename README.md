@@ -67,10 +67,14 @@ I decided not to include numeric rarity into json because I think it is pointles
 }
 ```
 
+* Added pretty-print for command `yarn set-rarities`
+
+![](readme/pretty-print.png)
+
 
 # Welcome to HashLips 👄
 
-![](https://github.com/HashLips/hashlips_art_engine/blob/main/logo.png)
+![](readme/logo.png)
 
 All the code in these repos was created and explained by HashLips on the main YouTube channel.
 
@@ -88,7 +92,7 @@ To find out more please visit:
 
 # HashLips Art Engine 🔥
 
-![](https://github.com/HashLips/hashlips_art_engine/blob/main/banner.png)
+![](readme/banner.png)
 
 Create generative art by using the canvas api and node js. Before you use the generation engine, make sure you have node.js(v10.18.0) installed.
 
