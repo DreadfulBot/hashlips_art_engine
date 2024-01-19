@@ -108,7 +108,8 @@ const getRarityScores = (data, rarityRanges, layerConfigurations, getLayerElemen
     })
 
     if (!foundRarity) {
-      throw new Error('For item with score ' + score + ' no rarity work defined')
+      console.log('For item with score ' + score + ' no rarity work defined')
+      return 'Unknown'
     }
 
     return foundRarity[0]
